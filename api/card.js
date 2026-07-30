@@ -131,7 +131,7 @@ module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'",
+    "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'",
   );
   res.status(200).send(svg);
 };
