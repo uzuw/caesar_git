@@ -8,6 +8,10 @@
   ],
   "routes": [
     {
+      "src": "/",
+      "dest": "/api/card"
+    },
+    {
       "src": "/api/card",
       "dest": "/api/card.js"
     }
