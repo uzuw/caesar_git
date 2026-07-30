@@ -86,38 +86,53 @@ function escapeXml(str) {
 
 function buildSvg(track, albumArt) {
   const bg = "#f5f0e8";
-  const bar = ACCENTS[Math.floor(Math.random() * ACCENTS.length)];
+  const eqColor = ACCENTS[Math.floor(Math.random() * ACCENTS.length)];
   const title = escapeXml(track.title);
   const album = escapeXml(track.album);
-
-  // A few animated "equalizer" bars, similar spirit to the original widget
-  const barsSvg = Array.from({ length: 3 })
-    .map((_, i) => {
-      const x = 20 + i * 8;
-      const dur = (0.8 + Math.random() * 0.6).toFixed(2);
-      return `<rect x="${x}" y="20" width="4" height="14" rx="2" fill="${bar}">
-        <animate attributeName="height" values="6;16;6" dur="${dur}s" repeatCount="indefinite" />
-        <animate attributeName="y" values="27;16;27" dur="${dur}s" repeatCount="indefinite" />
-      </rect>`;
-    })
-    .join("\n");
 
   const spotifyUrl =
     "https://open.spotify.com/user/bh6sl3lqw5k3zh85ksdl73aqv?si=RlNrgWg6Rc2Iui5lwFyd8Q&amp;utm_source=copy_link";
 
+  // Equalizer bars on the far right, like Spotify's desktop widget
+  const barsSvg = Array.from({ length: 3 })
+    .map((_, i) => {
+      const x = 370 + i * 10;
+      const dur = (0.7 + Math.random() * 0.8).toFixed(2);
+      return `<rect x="${x}" y="42" width="5" height="16" rx="2" fill="${eqColor}">
+        <animate attributeName="height" values="8;24;8" dur="${dur}s" repeatCount="indefinite" />
+        <animate attributeName="y" values="48;36;48" dur="${dur}s" repeatCount="indefinite" />
+      </rect>`;
+    })
+    .join("\n");
+
+  // Random playback position for the progress bar
+  const playedPct = Math.floor(Math.random() * 80) + 10;
+  const progressW = 200;
+  const fillW = Math.floor(progressW * playedPct / 100);
+
   return `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120" viewBox="0 0 400 120">
+    <defs>
+      <clipPath id="c"><rect width="400" height="120" rx="16" /></clipPath>
+    </defs>
     <a href="${spotifyUrl}" target="_top">
     <rect width="400" height="120" rx="16" fill="${bg}" />
     
-    <!-- Album Art (60x60) -->
-    <image href="${albumArt}" x="8" y="30" width="60" height="60" rx="6" />
+    <g clip-path="url(#c)">
+      <!-- Album art fills the full left height -->
+      <image href="${albumArt}" x="0" y="0" width="120" height="120" />
+    </g>
     
-    <text x="78" y="40" font-family="Verdana, sans-serif" font-size="11" fill="#8a8a8a">Now playing</text>
-    <text x="78" y="62" font-family="Verdana, sans-serif" font-size="16" font-weight="bold" fill="#2b2b2b">${title}</text>
-    <text x="78" y="82" font-family="Verdana, sans-serif" font-size="12" fill="#6b6b6b">Daniel Caesar &#8226; ${album}</text>
+    <!-- Track info -->
+    <text x="135" y="35" font-family="Verdana, sans-serif" font-size="11" fill="#8a8a8a">Now playing</text>
+    <text x="135" y="58" font-family="Verdana, sans-serif" font-size="16" font-weight="bold" fill="#2b2b2b">${title}</text>
+    <text x="135" y="78" font-family="Verdana, sans-serif" font-size="12" fill="#6b6b6b">Daniel Caesar &#8226; ${album}</text>
     
-    <!-- Equalizer bars -->
-    <g>${barsSvg}</g>
+    <!-- Progress bar - like Spotify -->
+    <rect x="135" y="100" width="${progressW}" height="4" rx="2" fill="#d4d0c8" />
+    <rect x="135" y="100" width="${fillW}" height="4" rx="2" fill="#1DB954" />
+    
+    <!-- Animated equalizer -->
+    ${barsSvg}
     </a>
   </svg>`;
 }
