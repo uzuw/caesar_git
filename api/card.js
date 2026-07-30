@@ -50,8 +50,10 @@ const TRACKS = [
 
 // Album art from Last.fm CDN
 const ALBUM_ART = {
-  freudian: "https://lastfm.freetls.fastly.net/i/u/300x300/437daace5f2280e5fec3dee2ffd7377e.jpg",
-  casestudy01: "https://lastfm.freetls.fastly.net/i/u/300x300/f2fff7cb1cae6b3886d749fe7bf86ca9.jpg",
+  freudian:
+    "https://lastfm.freetls.fastly.net/i/u/300x300/437daace5f2280e5fec3dee2ffd7377e.jpg",
+  casestudy01:
+    "https://lastfm.freetls.fastly.net/i/u/300x300/f2fff7cb1cae6b3886d749fe7bf86ca9.jpg",
   pdnl: "https://lastfm.freetls.fastly.net/i/u/300x300/7ab4f78932981481228761257599d1da.jpg",
 };
 
@@ -116,5 +118,9 @@ module.exports = (req, res) => {
 
   res.setHeader("Content-Type", "image/svg+xml");
   res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'",
+  );
   res.status(200).send(svg);
 };
