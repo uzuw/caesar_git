@@ -61,6 +61,21 @@ const ALBUM_ART = {
 // consistent between reloads of the same song, purely cosmetic.
 const ACCENTS = ["#c4956a", "#b98a63", "#d1a37c", "#a97d55", "#cf9d6f"];
 
+// Fetch album art from Last.fm CDN and return as base64 data URI so
+// GitHub's Camo proxy doesn't block the image.
+async function getAlbumArt(albumId) {
+  try {
+    const url = ALBUM_ART[albumId];
+    if (!url) return null;
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    const buf = Buffer.from(await response.arrayBuffer());
+    return `data:image/jpeg;base64,${buf.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
 function escapeXml(str) {
   return str
     .replace(/&/g, "&amp;")
@@ -69,16 +84,11 @@ function escapeXml(str) {
     .replace(/"/g, "&quot;");
 }
 
-function buildSvg(track) {
+function buildSvg(track, albumArt) {
   const bg = "#f5f0e8";
   const bar = ACCENTS[Math.floor(Math.random() * ACCENTS.length)];
   const title = escapeXml(track.title);
   const album = escapeXml(track.album);
-
-  // Get album art URL
-  const albumArt =
-    ALBUM_ART[track.albumId] ||
-    "https://via.placeholder.com/60/000000/FFFFFF?text=🎵";
 
   // A few animated "equalizer" bars, similar spirit to the original widget
   const barsSvg = Array.from({ length: 3 })
@@ -112,9 +122,10 @@ function buildSvg(track) {
   </svg>`;
 }
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   const track = TRACKS[Math.floor(Math.random() * TRACKS.length)];
-  const svg = buildSvg(track);
+  const albumArt = (await getAlbumArt(track.albumId)) || "";
+  const svg = buildSvg(track, albumArt);
 
   res.setHeader("Content-Type", "image/svg+xml");
   res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
